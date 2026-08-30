@@ -44,26 +44,15 @@ The variance filter, scaler, and PCA are fitted once, using the real training sp
 
 For one class, $P_r$ denotes the real training distribution, $P_g$ the generated distribution, $G$ the generator, and $D$ the critic. The critic minimizes:
 
-$$
-L_D =
-\mathbb{E}_{\tilde{x} \sim P_g}[D(\tilde{x})]
-- \mathbb{E}_{x \sim P_r}[D(x)]
-+ \lambda \mathbb{E}_{\hat{x} \sim P_{\hat{x}}}
-\left(\lVert \nabla_{\hat{x}}D(\hat{x}) \rVert_2 - 1\right)^2
-$$
+$$L_D = \mathbb{E}_{\tilde{x} \sim P_g}[D(\tilde{x})] - \mathbb{E}_{x \sim P_r}[D(x)] + \lambda \mathbb{E}_{\hat{x} \sim P_{\hat{x}}}\left(\lVert \nabla_{\hat{x}}D(\hat{x}) \rVert_2 - 1\right)^2$$
 
 The penalty is evaluated at points between real and generated rows:
 
-$$
-\hat{x} = \epsilon x + (1 - \epsilon)\tilde{x},
-\qquad \epsilon \sim U(0,1)
-$$
+$$\hat{x} = \epsilon x + (1 - \epsilon)\tilde{x}, \qquad \epsilon \sim U(0,1)$$
 
 The generator minimizes:
 
-$$
-L_G = -\mathbb{E}_{z \sim U([-1,1]^d)}[D(G(z))]
-$$
+$$L_G = -\mathbb{E}_{z \sim U([-1,1]^d)}[D(G(z))]$$
 
 Here, $x$ is real, $\tilde{x}=G(z)$ is generated, $z$ is a $d$-dimensional noise vector, and $\lambda=10$ is the gradient-penalty coefficient.
 
@@ -71,9 +60,7 @@ Both networks have hidden layers of 128, 128, and 64 units. A generator runs for
 
 The weighted condition uses the inverse-frequency weight:
 
-$$
-w_c = \frac{N}{C n_c}
-$$
+$$w_c = \frac{N}{C n_c}$$
 
 Here, $N$ is the real training-set size, $C$ the number of classes, and $n_c$ the training count for class $c$.
 
@@ -81,11 +68,7 @@ Here, $N$ is the real training-set size, $C$ the number of classes, and $n_c$ th
 
 Macro F1 is the main metric. Each run also saves per-class precision, recall and F1, a confusion matrix, and one-vs-rest ROC-AUC. Minority-class false-negative rate is calculated as:
 
-$$
-\mathrm{FNR}_c =
-\frac{\mathrm{FN}_c}{\mathrm{TP}_c + \mathrm{FN}_c}
-= 1 - \mathrm{Recall}_c
-$$
+$$\mathrm{FNR}_c = \frac{\mathrm{FN}_c}{\mathrm{TP}_c + \mathrm{FN}_c} = 1 - \mathrm{Recall}_c$$
 
 Every class has both positive and negative test examples, so ROC-AUC is defined here. Seeds 42, 1, and 2 keep the data split fixed while changing initialization and stochastic training.
 
