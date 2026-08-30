@@ -1,0 +1,127 @@
+{
+  "class_names": [
+    "BENIGN",
+    "Bot",
+    "DDoS",
+    "DoS Hulk",
+    "DoS Slowhttptest",
+    "PortScan",
+    "Web Attack - XSS"
+  ],
+  "confusion_matrix": [
+    [
+      2856,
+      39,
+      5,
+      44,
+      5,
+      4,
+      16
+    ],
+    [
+      3,
+      289,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      2997,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      5,
+      0,
+      0,
+      2303,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      781,
+      0,
+      1
+    ],
+    [
+      4,
+      0,
+      0,
+      1,
+      0,
+      2681,
+      10
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      98
+    ]
+  ],
+  "macro_f1": 0.9668838618513506,
+  "macro_roc_auc_ovr": 0.9988893729789331,
+  "minority_false_negative_rate": {
+    "Bot": 0.010273972602739767,
+    "DoS Slowhttptest": 0.003826530612244916,
+    "Web Attack - XSS": 0.0
+  },
+  "per_class": {
+    "BENIGN": {
+      "f1-score": 0.9780821917808219,
+      "precision": 0.9947753396029259,
+      "recall": 0.9619400471539239,
+      "support": 2969.0
+    },
+    "Bot": {
+      "f1-score": 0.932258064516129,
+      "precision": 0.8810975609756098,
+      "recall": 0.9897260273972602,
+      "support": 292.0
+    },
+    "DDoS": {
+      "f1-score": 0.9985007496251874,
+      "precision": 0.998001998001998,
+      "recall": 0.999,
+      "support": 3000.0
+    },
+    "DoS Hulk": {
+      "f1-score": 0.9890487438264978,
+      "precision": 0.9804171988080034,
+      "recall": 0.9978336221837089,
+      "support": 2308.0
+    },
+    "DoS Slowhttptest": {
+      "f1-score": 0.9949044585987261,
+      "precision": 0.9936386768447837,
+      "recall": 0.9961734693877551,
+      "support": 784.0
+    },
+    "PortScan": {
+      "f1-score": 0.9964690577959487,
+      "precision": 0.9985102420856611,
+      "recall": 0.9944362017804155,
+      "support": 2696.0
+    },
+    "Web Attack - XSS": {
+      "f1-score": 0.8789237668161435,
+      "precision": 0.784,
+      "recall": 1.0,
+      "support": 98.0
+    }
+  }
+}

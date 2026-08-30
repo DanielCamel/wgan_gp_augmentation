@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.matplotlib-cache/
+build/
+dist/
+*.egg-info/
+
+# CICIDS2017 and derived data
+data/raw/
+data/processed/
+*.npz
+*.joblib
+*.pt
+*.pth
+checkpoints/
+results/smoke/
+
+# Large generated artifacts are ignored by extension above. Small JSON/CSV
+# metrics and generated figures remain available as research evidence.

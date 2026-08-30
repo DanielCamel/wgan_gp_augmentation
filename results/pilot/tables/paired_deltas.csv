@@ -1,0 +1,3 @@
+comparison,mean,n,sample_std
+augmented_minus_baseline,0.0007976202050605785,3,0.007021443271693911
+weighted_minus_baseline,-0.010816857610487044,3,0.008140088812728149

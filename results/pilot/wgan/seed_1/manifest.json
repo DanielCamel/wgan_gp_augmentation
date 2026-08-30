@@ -1,0 +1,64 @@
+{
+  "classes": {
+    "Bot": {
+      "class_id": 1,
+      "device": "cpu",
+      "diagnostics": {
+        "mean_l2": 0.9714299440383911,
+        "real_count": 1364,
+        "real_pairwise_mean": 6.4738383293151855,
+        "std_l2": 6.695528507232666,
+        "synthetic_count": 3636,
+        "synthetic_pairwise_mean": 4.141583442687988,
+        "synthetic_to_real_nn_mean": 2.829448699951172
+      },
+      "elapsed_seconds": 17.738601699937135,
+      "generated_count": 3636,
+      "real_training_count": 1364,
+      "seed": 1001,
+      "target_training_count": 5000
+    },
+    "DoS Slowhttptest": {
+      "class_id": 4,
+      "device": "cpu",
+      "diagnostics": {
+        "mean_l2": 1.6632975339889526,
+        "real_count": 3660,
+        "real_pairwise_mean": 11.274162292480469,
+        "std_l2": 5.598663330078125,
+        "synthetic_count": 1340,
+        "synthetic_pairwise_mean": 6.3861517906188965,
+        "synthetic_to_real_nn_mean": 5.230842590332031
+      },
+      "elapsed_seconds": 17.819600200047716,
+      "generated_count": 1340,
+      "real_training_count": 3660,
+      "seed": 3001,
+      "target_training_count": 5000
+    },
+    "Web Attack - XSS": {
+      "class_id": 6,
+      "device": "cpu",
+      "diagnostics": {
+        "mean_l2": 0.6613254547119141,
+        "real_count": 456,
+        "real_pairwise_mean": 1.7418811321258545,
+        "std_l2": 3.5781993865966797,
+        "synthetic_count": 4544,
+        "synthetic_pairwise_mean": 0.2875829041004181,
+        "synthetic_to_real_nn_mean": 0.2002476453781128
+      },
+      "elapsed_seconds": 17.64163379999809,
+      "generated_count": 4544,
+      "real_training_count": 456,
+      "seed": 2001,
+      "target_training_count": 5000
+    }
+  },
+  "device_available": "cpu",
+  "model_type": "class-specific WGAN-GP",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "seed": 1,
+  "torch": "2.13.0+cpu",
+  "total_generated": 9520
+}

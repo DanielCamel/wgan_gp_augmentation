@@ -1,0 +1,15 @@
+{
+  "best_epoch": 44,
+  "classifier_training_rows": 66201,
+  "condition": "augmented",
+  "elapsed_seconds": 35.683867200044915,
+  "numpy": "2.5.2",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "real_training_rows": 56681,
+  "scikit_learn": "1.9.0",
+  "seed": 2,
+  "synthetic_training_rows": 9520,
+  "test_rows": 12147,
+  "validation_rows": 12146
+}

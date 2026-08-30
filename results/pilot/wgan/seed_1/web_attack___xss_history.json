@@ -1,0 +1,138 @@
+[
+  {
+    "critic_loss": 5.010707378387451,
+    "generator_loss": -0.020404573529958725,
+    "gradient_penalty": 5.148795127868652,
+    "mean_gradient_norm": 0.28496670722961426,
+    "step": 1,
+    "wasserstein_estimate": 0.13808764517307281
+  },
+  {
+    "critic_loss": -0.5542904734611511,
+    "generator_loss": -0.245219424366951,
+    "gradient_penalty": 0.07938522845506668,
+    "mean_gradient_norm": 0.9884976744651794,
+    "step": 25,
+    "wasserstein_estimate": 0.6336756944656372
+  },
+  {
+    "critic_loss": -1.5787724256515503,
+    "generator_loss": -9.651505388319492e-05,
+    "gradient_penalty": 0.28781262040138245,
+    "mean_gradient_norm": 1.0681469440460205,
+    "step": 50,
+    "wasserstein_estimate": 1.8665850162506104
+  },
+  {
+    "critic_loss": -2.7054436206817627,
+    "generator_loss": -0.1034296452999115,
+    "gradient_penalty": 0.533055305480957,
+    "mean_gradient_norm": 1.113736629486084,
+    "step": 75,
+    "wasserstein_estimate": 3.2384989261627197
+  },
+  {
+    "critic_loss": -2.709702730178833,
+    "generator_loss": -0.19252696633338928,
+    "gradient_penalty": 0.7169440388679504,
+    "mean_gradient_norm": 1.116979956626892,
+    "step": 100,
+    "wasserstein_estimate": 3.4266467094421387
+  },
+  {
+    "critic_loss": -2.384683609008789,
+    "generator_loss": -0.11718139052391052,
+    "gradient_penalty": 0.6033673286437988,
+    "mean_gradient_norm": 1.0866858959197998,
+    "step": 125,
+    "wasserstein_estimate": 2.988050937652588
+  },
+  {
+    "critic_loss": -1.9092700481414795,
+    "generator_loss": 0.016010133549571037,
+    "gradient_penalty": 0.594271719455719,
+    "mean_gradient_norm": 1.0759385824203491,
+    "step": 150,
+    "wasserstein_estimate": 2.5035417079925537
+  },
+  {
+    "critic_loss": -2.7221240997314453,
+    "generator_loss": 0.23514248430728912,
+    "gradient_penalty": 0.8113266229629517,
+    "mean_gradient_norm": 1.0838634967803955,
+    "step": 175,
+    "wasserstein_estimate": 3.5334506034851074
+  },
+  {
+    "critic_loss": -1.56072998046875,
+    "generator_loss": 0.2654535174369812,
+    "gradient_penalty": 0.5299559235572815,
+    "mean_gradient_norm": 1.0629911422729492,
+    "step": 200,
+    "wasserstein_estimate": 2.0906858444213867
+  },
+  {
+    "critic_loss": -1.8217567205429077,
+    "generator_loss": 0.21853867173194885,
+    "gradient_penalty": 0.5015813112258911,
+    "mean_gradient_norm": 1.0659030675888062,
+    "step": 225,
+    "wasserstein_estimate": 2.323338031768799
+  },
+  {
+    "critic_loss": -1.6823604106903076,
+    "generator_loss": 0.23735445737838745,
+    "gradient_penalty": 0.5698065757751465,
+    "mean_gradient_norm": 1.0635426044464111,
+    "step": 250,
+    "wasserstein_estimate": 2.252166986465454
+  },
+  {
+    "critic_loss": -3.325887680053711,
+    "generator_loss": 0.27418267726898193,
+    "gradient_penalty": 1.2588424682617188,
+    "mean_gradient_norm": 1.105061650276184,
+    "step": 275,
+    "wasserstein_estimate": 4.58473014831543
+  },
+  {
+    "critic_loss": -2.298616409301758,
+    "generator_loss": 0.2737875282764435,
+    "gradient_penalty": 0.8348578810691833,
+    "mean_gradient_norm": 1.054826021194458,
+    "step": 300,
+    "wasserstein_estimate": 3.133474349975586
+  },
+  {
+    "critic_loss": -1.6088048219680786,
+    "generator_loss": 0.27883076667785645,
+    "gradient_penalty": 0.46680840849876404,
+    "mean_gradient_norm": 1.0541715621948242,
+    "step": 325,
+    "wasserstein_estimate": 2.075613260269165
+  },
+  {
+    "critic_loss": -2.157111167907715,
+    "generator_loss": 0.2669549584388733,
+    "gradient_penalty": 0.6983298659324646,
+    "mean_gradient_norm": 1.081944465637207,
+    "step": 350,
+    "wasserstein_estimate": 2.855441093444824
+  },
+  {
+    "critic_loss": -3.484452962875366,
+    "generator_loss": 0.25474029779434204,
+    "gradient_penalty": 1.1319010257720947,
+    "mean_gradient_norm": 1.1148542165756226,
+    "step": 375,
+    "wasserstein_estimate": 4.616353988647461
+  },
+  {
+    "critic_loss": -1.1431299448013306,
+    "generator_loss": 0.24270011484622955,
+    "gradient_penalty": 0.3900056779384613,
+    "mean_gradient_norm": 1.0444731712341309,
+    "step": 400,
+    "wasserstein_estimate": 1.5331356525421143
+  }
+]
