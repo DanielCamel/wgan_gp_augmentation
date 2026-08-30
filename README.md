@@ -1,60 +1,93 @@
-# Class-specific WGAN-GP augmentation for minority intrusion classes
+# WGAN-GP augmentation for minority intrusion classes
 
-## Research question
+This is a small experiment with CICIDS2017. It checks whether a classifier gets better at recognizing minority attacks when its training set includes samples from WGAN-GP models.
 
-This pilot asks whether synthetic training observations from class-specific WGAN-GP models improve detection of minority network-intrusion classes in CICIDS2017. Class imbalance matters because a classifier can achieve high aggregate accuracy while missing attacks represented by relatively few flows. Here, augmentation means adding generated observations to the training partition for selected minority classes. Validation and test data contain only real observations.
+In these runs, the answer was “not consistently.” Bot recall improved, but the change in macro F1 was smaller than the variation between runs. The generated XSS rows were also much less diverse than the real ones.
 
-The implemented model is class-specific WGAN-GP, not conditional WGAN-GP. The experiment trains a separate generator and critic for Bot, Web Attack - XSS, and DoS Slowhttptest. Class labels are not supplied to either network as conditioning inputs.
+## Experiment
 
-## Data and pilot scope
+Three versions of the same MLP classifier are compared:
 
-The experiment reads the CICIDS2017 flow CSV representation. It selects BENIGN, DDoS, DoS Hulk, PortScan, Bot, Web Attack - XSS, and DoS Slowhttptest. The three augmentation targets provide different minority sample sizes while excluding classes with only a few dozen observations, for which both GAN fitting and test estimates would be unreliable.
+1. real training data only;
+2. real data plus WGAN-GP samples;
+3. real data with balanced sample weights.
 
-The loader applies deterministic per-class reservoir sampling with a cap of 20,000 rows. It selected 88,117 rows, removed 127 invalid rows, 7,004 exact duplicates, and 12 rows belonging to three feature vectors with conflicting labels. The resulting 80,974 observations were split into 56,681 training, 12,146 validation, and 12,147 test rows. Exact feature duplicates were removed before splitting.
+Bot, Web Attack - XSS, and DoS Slowhttptest each have their own generator and critic. These are class-specific WGAN-GPs, not a conditional WGAN-GP: neither network receives a class label.
 
-The preprocessing pipeline removes near-constant features, standardizes features, and applies PCA. It fits every transformation on the real training partition only. PCA retained 23 components explaining at least 95% of training variance. The fitted transformation processes validation and test observations. Each WGAN-GP synthesizes new training observations directly in PCA space.
+Generated rows are added to training data only. All three classifiers use the same real validation and test sets.
 
-## Method
+## Dataset
 
-For a generator (G), critic (D), real class distribution (P_r), generated distribution (P_g), and interpolation distribution (P_{\hat{x}}), the critic minimizes
+The input is the flow CSV release of CICIDS2017. This pilot keeps seven labels:
 
-\[
-L_D = \mathbb{E}_{\tilde{x}\sim P_g}[D(\tilde{x})]
-- \mathbb{E}_{x\sim P_r}[D(x)]
-+ \lambda\,\mathbb{E}_{\hat{x}\sim P_{\hat{x}}}
-\left(\lVert\nabla_{\hat{x}}D(\hat{x})\rVert_2-1\right)^2.
-\]
+- BENIGN
+- DDoS
+- DoS Hulk
+- PortScan
+- Bot
+- Web Attack - XSS
+- DoS Slowhttptest
 
-The pipeline constructs interpolated observations as
+Classes represented by only a few dozen rows are not included. A GAN trained on so little data would be difficult to assess, and the corresponding test metrics would be unstable.
 
-\[
-\hat{x}=\epsilon x+(1-\epsilon)\tilde{x},
-\qquad \epsilon\sim U(0,1),
-\]
+The loader uses deterministic reservoir sampling, capped at 20,000 rows per class. It selected 88,117 rows for this run. Cleaning removed 127 invalid rows and 7,004 exact duplicates. Three feature vectors occurred with conflicting labels, so all 12 rows containing those vectors were removed.
 
-and the generator minimizes
+| Split | Rows |
+|---|---:|
+| Train | 56,681 |
+| Validation | 12,146 |
+| Test | 12,147 |
 
-\[
-L_G=-\mathbb{E}_{z\sim U([-1,1]^d)}[D(G(z))].
-\]
+The variance filter, scaler, and PCA are fitted once, using the real training split. PCA kept 23 components, covering at least 95% of the variance in that split. WGAN-GP training and sampling happen in the resulting PCA space.
 
-Here (x) is a real training observation from one class, (z) is a (d)-dimensional latent vector, and \(\lambda=10\) is the gradient-penalty coefficient. Each generator and critic uses hidden layers of 128, 128, and 64 units. Training uses 400 generator steps, five critic steps per generator step, Adam with learning rate \(10^{-4}\), and a class-specific training target of 5,000 observations.
+## Model details
 
-The classifier is the same MLP in every condition, with hidden layers of 128 and 64 units. Real validation loss controls early stopping. The experiment compares:
+For one class, $P_r$ denotes the real training distribution, $P_g$ the generated distribution, $G$ the generator, and $D$ the critic. The critic minimizes:
 
-1. an unweighted real-only baseline;
-2. the same classifier with WGAN-GP observations added only to training data;
-3. a real-only classifier using balanced sample weights.
+$$
+L_D =
+\mathbb{E}_{\tilde{x} \sim P_g}[D(\tilde{x})]
+- \mathbb{E}_{x \sim P_r}[D(x)]
++ \lambda \mathbb{E}_{\hat{x} \sim P_{\hat{x}}}
+\left(\lVert \nabla_{\hat{x}}D(\hat{x}) \rVert_2 - 1\right)^2
+$$
 
-For the weighted condition, observation weights derive from
+The penalty is evaluated at points between real and generated rows:
 
-\[
-w_c=\frac{N}{C n_c},
-\]
+$$
+\hat{x} = \epsilon x + (1 - \epsilon)\tilde{x},
+\qquad \epsilon \sim U(0,1)
+$$
 
-where (N) is the real training-set size, (C) is the number of classes, and (n_c) is the training count for class (c). No generated observation enters validation or test data. Seeds 42, 1, and 2 share the fixed real-data split and vary model initialization and stochastic training.
+The generator minimizes:
 
-Evaluation uses macro F1, per-class precision, recall and F1, confusion matrices, and minority-class false-negative rate (\mathrm{FNR}_c=\mathrm{FN}_c/(\mathrm{TP}_c+\mathrm{FN}_c)=1-\mathrm{Recall}_c\). Multiclass ROC-AUC uses one-vs-rest probabilities because every test partition contains positive and negative observations for each class.
+$$
+L_G = -\mathbb{E}_{z \sim U([-1,1]^d)}[D(G(z))]
+$$
+
+Here, $x$ is real, $\tilde{x}=G(z)$ is generated, $z$ is a $d$-dimensional noise vector, and $\lambda=10$ is the gradient-penalty coefficient.
+
+Both networks have hidden layers of 128, 128, and 64 units. A generator runs for 400 steps; every generator step follows five critic updates. Adam uses a learning rate of $10^{-4}$. Synthetic rows bring each target class to 5,000 training rows.
+
+The weighted condition uses the inverse-frequency weight:
+
+$$
+w_c = \frac{N}{C n_c}
+$$
+
+Here, $N$ is the real training-set size, $C$ the number of classes, and $n_c$ the training count for class $c$.
+
+## Metrics
+
+Macro F1 is the main metric. Each run also saves per-class precision, recall and F1, a confusion matrix, and one-vs-rest ROC-AUC. Minority-class false-negative rate is calculated as:
+
+$$
+\mathrm{FNR}_c =
+\frac{\mathrm{FN}_c}{\mathrm{TP}_c + \mathrm{FN}_c}
+= 1 - \mathrm{Recall}_c
+$$
+
+Every class has both positive and negative test examples, so ROC-AUC is defined here. Seeds 42, 1, and 2 keep the data split fixed while changing initialization and stochastic training.
 
 ## Results
 
@@ -68,53 +101,105 @@ Evaluation uses macro F1, per-class precision, recall and F1, confusion matrices
 
 <!-- GENERATED_RESULTS_END -->
 
-The paired augmented-minus-baseline macro-F1 difference was (0.0008 \pm 0.0070). Augmentation improved Bot mean recall from 0.8824 to 0.9155, left XSS recall unchanged at 0.9898, and left Slowhttptest recall unchanged at 0.9957. XSS F1 decreased from 0.9327 to 0.9282. These mixed effects do not demonstrate a reliable overall benefit from augmentation in this pilot.
+Augmentation changed macro F1 by $0.0008 \pm 0.0070$ relative to the matching baseline runs. Some seeds improved and others did not, so there is no stable overall gain in this pilot.
+
+The class-level changes are more informative:
+
+- Bot recall increased from 0.8824 to 0.9155.
+- XSS recall stayed at 0.9898, while its F1 decreased from 0.9327 to 0.9282.
+- Slowhttptest recall stayed at 0.9957.
 
 ![Macro F1 by condition](figures/macro_f1_conditions.png)
 
 ![Minority-class false-negative rates](figures/minority_fnr.png)
 
-The row-normalized confusion matrices use the same real test observations in both conditions.
+The confusion matrices below are row-normalized and averaged over three seeds. Both panels come from the same real test rows.
 
 ![Baseline and augmented confusion matrices](figures/confusion_matrices.png)
 
-## Synthetic-data diagnostics
+## Synthetic sample check
 
-The generators produced 9,520 training observations per seed: 3,636 for Bot, 4,544 for XSS, and 1,340 for Slowhttptest. Across three seeds, mean synthetic-to-real pairwise-distance ratios were 0.740 for Bot, 0.145 for XSS, and 0.622 for Slowhttptest. XSS samples therefore occupy a substantially narrower region than the real XSS training observations. This diagnostic indicates collapse-like concentration; it does not establish distributional fidelity for the other generators.
+Each seed generated 9,520 rows: 3,636 Bot, 4,544 XSS, and 1,340 Slowhttptest. A basic diversity check compares mean pairwise distance in the synthetic sample with the same measurement in the corresponding real training sample.
+
+The three-seed mean synthetic-to-real ratios are:
+
+- Bot: 0.740
+- DoS Slowhttptest: 0.622
+- Web Attack - XSS: 0.145
+
+XSS is the clear problem: its generated rows occupy a much narrower region than the real sample. This is consistent with mode collapse or strong under-dispersion. Bot and Slowhttptest look better by this measure, although pairwise distance alone cannot validate either distribution.
 
 ![Synthetic diversity diagnostic](figures/synthetic_diversity.png)
 
-## Reproduction
+## Reproducing the run
 
-Use Python 3.11–3.14. Create an isolated environment and install all experiment dependencies:
+Python 3.11–3.14 is supported. On Windows PowerShell:
 
-```console
+```powershell
 python -m venv .venv
-.venv/Scripts/python -m pip install -e ".[dev,gan,report]"
+.\.venv\Scripts\python.exe -m pip install -e ".[dev,gan,report]"
 ```
 
-Place one merged CICIDS2017 CSV under `data/raw/`, or pass its path directly. Do not combine a merged file with the eight daily files in one invocation.
+Put one merged CICIDS2017 CSV in `data/raw/`, or pass another path with `--csv`. Use either the merged CSV or the eight daily files, since passing both duplicates the flows.
 
-```console
-.venv/Scripts/python scripts/prepare_data.py --config configs/pilot.toml --csv data/raw/CICIDS2017.csv --output data/processed/pilot
-.venv/Scripts/python scripts/run_baseline.py --config configs/pilot.toml --prepared data/processed/pilot --output results/pilot/baseline/seed_42 --seed 42
-.venv/Scripts/python scripts/train_wgan_gp.py --config configs/pilot.toml --prepared data/processed/pilot --output results/pilot/wgan/seed_42 --seed 42
-.venv/Scripts/python scripts/run_condition.py --condition augmented --config configs/pilot.toml --prepared data/processed/pilot --synthetic results/pilot/wgan/seed_42/synthetic_training_only.npz --output results/pilot/augmented/seed_42 --seed 42
-.venv/Scripts/python scripts/run_condition.py --condition weighted --config configs/pilot.toml --prepared data/processed/pilot --output results/pilot/weighted/seed_42 --seed 42
+Prepare the fixed split:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\prepare_data.py `
+  --config configs\pilot.toml `
+  --csv data\raw\CICIDS2017.csv `
+  --output data\processed\pilot
 ```
 
-Repeat the four model commands for seeds 1 and 2, aggregate their metrics, and regenerate every reported table and figure:
+Run one seed:
 
-```console
-.venv/Scripts/python scripts/aggregate_metrics.py --results-root results/pilot --seeds 42 1 2 --output results/pilot/aggregate.json
-.venv/Scripts/python scripts/generate_report_assets.py --results-root results/pilot --figures figures --readme README.md --seeds 42 1 2
-.venv/Scripts/python -m pytest
+```powershell
+$seed = 42
+
+.\.venv\Scripts\python.exe scripts\run_baseline.py `
+  --config configs\pilot.toml --prepared data\processed\pilot `
+  --output "results\pilot\baseline\seed_$seed" --seed $seed
+
+.\.venv\Scripts\python.exe scripts\train_wgan_gp.py `
+  --config configs\pilot.toml --prepared data\processed\pilot `
+  --output "results\pilot\wgan\seed_$seed" --seed $seed
+
+.\.venv\Scripts\python.exe scripts\run_condition.py `
+  --condition augmented --config configs\pilot.toml `
+  --prepared data\processed\pilot `
+  --synthetic "results\pilot\wgan\seed_$seed\synthetic_training_only.npz" `
+  --output "results\pilot\augmented\seed_$seed" --seed $seed
+
+.\.venv\Scripts\python.exe scripts\run_condition.py `
+  --condition weighted --config configs\pilot.toml `
+  --prepared data\processed\pilot `
+  --output "results\pilot\weighted\seed_$seed" --seed $seed
 ```
 
-Preparation records the source filename and SHA-256 checksum. Each run saves metrics, predictions, losses, execution time, library versions, and hardware information. Raw data, transformed arrays, predictions, models, and checkpoints remain excluded from Git because of their size. JSON metrics, CSV summaries, and generated figures provide the compact result record.
+Repeat those commands for seeds 1 and 2, then rebuild the aggregate files and figures:
 
-## Limitations and next experiments
+```powershell
+.\.venv\Scripts\python.exe scripts\aggregate_metrics.py `
+  --results-root results\pilot --seeds 42 1 2 `
+  --output results\pilot\aggregate.json
 
-The experiment uses a capped cohort and a random flow-level split. Flows from the same capture session can remain similar across partitions, which may explain the high absolute scores. Three seeds quantify initialization variability but do not support strong statistical inference. PCA preserves variance rather than class-discriminative information. The synthetic diagnostics are descriptive and do not prove privacy, novelty, or distributional equivalence. XSS generation shows a clear diversity problem, and generated XSS observations outnumber real XSS training observations by roughly ten to one.
+.\.venv\Scripts\python.exe scripts\generate_report_assets.py `
+  --results-root results\pilot --figures figures `
+  --readme README.md --seeds 42 1 2
 
-The next experiment should pre-register a session- or day-aware split, reduce synthetic-to-real ratios, select stopping criteria using real validation diagnostics, and compare WGAN-GP with random oversampling and SMOTE. A broader study should add more datasets and evaluate calibration, precision-recall AUC, nearest-neighbor privacy risk, and sensitivity to PCA dimensionality. Results should remain negative or inconclusive when executed metrics do not support improvement.
+.\.venv\Scripts\python.exe scripts\check_reproducibility.py `
+  --prepared data\processed\pilot `
+  --results-root results\pilot --seeds 42 1 2
+
+.\.venv\Scripts\python.exe -m pytest
+```
+
+Preparation records the input filename and SHA-256 checksum. Model runs save metrics, predictions, losses, runtime, package versions, and platform details. Git ignores raw data and large model artifacts; compact JSON metrics, CSV summaries, and figures remain available.
+
+## Limitations
+
+This result should be read as a pilot rather than a benchmark. The dataset is capped, and rows are split randomly at flow level. Similar flows from one capture session may land in different splits, which could explain the high absolute scores. Three seeds expose some initialization variance but do not support strong statistical claims.
+
+PCA preserves high-variance directions, not necessarily the features that best separate attacks. The diversity check says nothing about privacy and does not prove that a generated row is novel. XSS synthetic rows outnumber real XSS training rows by roughly ten to one, making their low diversity particularly concerning.
+
+The next useful run would use a day- or session-aware split, lower synthetic-to-real ratios, validation-based generator stopping, and direct comparisons with random oversampling and SMOTE. Precision-recall AUC, calibration, and nearest-neighbor privacy checks are also missing from this pilot.
